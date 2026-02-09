@@ -989,6 +989,19 @@ int main(int argc, char *argv[])
     }
     statusUpdater()->update(DbIxStatus::DBIXS_DONE, "");
     flushIdxReasons();
+
+    // Run post-index command if configured and indexing succeeded
+    if (status) {
+        std::string postindexcmd;
+        if (config->getConfParam("postindexcmd", postindexcmd) && !postindexcmd.empty()) {
+            LOGINFO("recollindex: running postindexcmd: " << postindexcmd << "\n");
+            int ret = system(postindexcmd.c_str());
+            if (ret != 0) {
+                LOGERR("recollindex: postindexcmd failed with status " << ret << "\n");
+            }
+        }
+    }
+
     {
         time_t tt = time(nullptr);
         LOGINFO("recollindex: exiting: " << ctime(&tt));

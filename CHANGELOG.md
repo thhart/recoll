@@ -2,6 +2,11 @@
 
 ## 2026-02-09
 
+- Add `sem_ollama_host` config parameter: configure remote ollama
+  server URL from `recoll.conf` (no more manual `OLLAMA_HOST` env var)
+- Add `postindexcmd` config parameter to recollindex: runs a shell
+  command after successful batch indexing (e.g. to update embeddings)
+- Pin chromadb==1.5.0 in initsemenv.sh to prevent DB format breakage
 - Integrate semantic init into deb package: scripts installed to
   `/usr/share/recoll-semantic/`, venv auto-created at
   `/var/lib/recoll-semantic/venv` via postinst

@@ -59,6 +59,12 @@ static bool maybeStartCmd(const RclConfig *conf)
     std::string filterdir = path_cat(path_rclpkgdatadir(), "filters");
     setenv("PYTHONPATH", (scriptdir + ":" + filterdir).c_str(), 1);
 
+    // Forward sem_ollama_host to the Python process if configured
+    std::string ollamahost;
+    if (conf->getConfParam("sem_ollama_host", ollamahost) && !ollamahost.empty()) {
+        setenv("OLLAMA_HOST", ollamahost.c_str(), 1);
+    }
+
     if (!cmd.startCmd(cmdname, args)) {
         LOGERR("startCmd failed \n");
         return false;

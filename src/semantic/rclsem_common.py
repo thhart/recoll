@@ -67,7 +67,11 @@ def common_init(confdir=""):
         embedsegsize = int(embedsegsize)
     else:
         embedsegsize = 1000
-        
+
+    ollamahost = rclconf.getConfParam("sem_ollama_host")
+    if ollamahost:
+        os.environ["OLLAMA_HOST"] = ollamahost
+
     rcldb = recoll.connect(confdir)
 
     # We can't use the config directory path as collection name. It must be:

@@ -41,7 +41,7 @@ venvdir=$1
 mkdir -p "$venvdir" || exit 1
 python3 -m venv "$venvdir" || exit 1
 . "$venvdir"/bin/activate
-python3 -m pip install chromadb ollama
+python3 -m pip install chromadb==1.5.0 ollama
 deactivate
 
 # Install the recoll Python module into the venv so scripts can import it

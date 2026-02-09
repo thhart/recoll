@@ -80,20 +80,22 @@ Add to `~/.recoll/recoll.conf`:
 
 ```
 sem_venv = /var/lib/recoll-semantic/venv
+postindexcmd = /var/lib/recoll-semantic/venv/bin/python3 /usr/share/recoll-semantic/rclsem_embed.py
 ```
 
-Build embeddings:
+The `postindexcmd` runs automatically after each successful `recollindex`
+batch, keeping embeddings in sync with the index.
+
+For remote ollama, add `sem_ollama_host` to `recoll.conf`:
+
+```
+sem_ollama_host = http://gpu-server:11434
+```
+
+To build embeddings manually (first run or rebuild):
 
 ```bash
 /var/lib/recoll-semantic/venv/bin/python3 \
-  /usr/share/recoll-semantic/rclsem_embed.py
-```
-
-For remote ollama, set `OLLAMA_HOST` before running:
-
-```bash
-OLLAMA_HOST=http://gpu-server:11434 \
-  /var/lib/recoll-semantic/venv/bin/python3 \
   /usr/share/recoll-semantic/rclsem_embed.py
 ```
 
@@ -101,11 +103,13 @@ OLLAMA_HOST=http://gpu-server:11434 \
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
+| `postindexcmd` | (empty) | Shell command run after successful batch indexing |
 | `sem_venv` | (required) | Path to the semantic Python venv |
 | `sem_rclquery` | `mime:*` | Restrict which documents get embedded |
 | `sem_chromadbdir` | `~/.recoll/chromadb` | ChromaDB storage location |
 | `sem_embedmodel` | `nomic-embed-text` | Ollama embedding model |
 | `sem_embedsegsize` | `1000` | Target segment size in characters |
+| `sem_ollama_host` | (empty) | Ollama server URL (e.g. `http://gpu:11434`) |
 
 ## Upstream
 
