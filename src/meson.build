@@ -573,12 +573,18 @@ if get_option('semantic')
         install_dir: get_option('datadir') / 'recoll-semantic',
         strip_directory: true,
         exclude_directories: '__pycache__',
-        exclude_files: ['initsemenv.sh'],
+        exclude_files: ['initsemenv.sh', 'recollsemantic.sh'],
     )
     install_data(
         'semantic/initsemenv.sh',
         install_dir: get_option('datadir') / 'recoll-semantic',
         install_mode: 'rwxr-xr-x',
+    )
+    install_data(
+        'semantic/recollsemantic.sh',
+        install_dir: get_option('bindir'),
+        install_mode: 'rwxr-xr-x',
+        rename: 'recollsemantic',
     )
 endif
 

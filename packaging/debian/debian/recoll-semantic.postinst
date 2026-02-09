@@ -33,7 +33,7 @@ case "$1" in
         if [ -n "$OLLAMA_HOST" ]; then
             echo "  sem_ollama_host = $OLLAMA_HOST"
         fi
-        echo "  postindexcmd = $SEM_VENV/bin/python3 /usr/share/recoll-semantic/rclsem_embed.py"
+        echo "  postindexcmd = recollsemantic embed"
         echo ""
         ;;
 esac

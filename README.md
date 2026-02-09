@@ -85,7 +85,7 @@ Add to `~/.recoll/recoll.conf`:
 
 ```
 sem_venv = /var/lib/recoll-semantic/venv
-postindexcmd = /var/lib/recoll-semantic/venv/bin/python3 /usr/share/recoll-semantic/rclsem_embed.py
+postindexcmd = recollsemantic embed
 ```
 
 The `postindexcmd` runs automatically after each successful `recollindex`
@@ -97,11 +97,13 @@ For remote ollama, add `sem_ollama_host` to `recoll.conf`:
 sem_ollama_host = http://gpu-server:11434
 ```
 
-To build embeddings manually (first run or rebuild):
+### recollsemantic command
 
 ```bash
-/var/lib/recoll-semantic/venv/bin/python3 \
-  /usr/share/recoll-semantic/rclsem_embed.py
+recollsemantic init          # Create/recreate venv and pull embedding model
+recollsemantic embed         # Update embeddings from the recoll index
+recollsemantic query         # Interactive semantic query shell
+recollsemantic -c /path/to/confdir embed   # Use a custom config directory
 ```
 
 ## Configuration

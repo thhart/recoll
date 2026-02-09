@@ -1,5 +1,6 @@
 usr/bin/recollindex
 usr/bin/recollq
+usr/bin/recollsemantic
 usr/bin/xadump
 usr/lib/python*/*-packages/recollaspell*
 usr/lib/python*/*-packages/recollchm/*

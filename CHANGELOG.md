@@ -2,6 +2,7 @@
 
 ## 2026-02-09
 
+- Add `recollsemantic` command with `init`, `embed`, `query` subcommands
 - Interactive deb install via debconf: prompts for ollama server URL
   and whether to download the embedding model during install
 - Add `sem_ollama_host` config parameter: configure remote ollama
