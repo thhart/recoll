@@ -1,0 +1,14 @@
+#!/bin/sh
+# Post-install script for recoll-semantic: create the Python venv.
+# Copyright 2026 ITTH GmbH & Co. KG
+set -e
+
+SEM_VENV=/var/lib/recoll-semantic/venv
+
+case "$1" in
+    configure)
+        /usr/share/recoll-semantic/initsemenv.sh "$SEM_VENV"
+        ;;
+esac
+
+#DEBHELPER#

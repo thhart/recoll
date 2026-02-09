@@ -30,7 +30,8 @@ Rules-Requires-Root: no
 
 Package: recoll-semantic
 Architecture: all
-Depends: recollcmd (= ${binary:Version}), recollgui (= ${binary:Version}), ${misc:Depends}
+Depends: recollcmd (= ${binary:Version}), recollgui (= ${binary:Version}),
+         python3-venv, python3-pip, python3-recoll, curl, ${misc:Depends}
 Conflicts: recoll
 Replaces: recoll
 Description: Personal full text search package with semantic search

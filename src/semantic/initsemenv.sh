@@ -18,11 +18,11 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# Initialize a venv for the semantic recoll python part.
-#
-# Temporary: We assume that we are living in a recoll source tree (tar
-# or git), and that the recoll python module is installed on the
-# system
+# Initialize the semantic search Python venv.
+# Creates the venv and installs chromadb + ollama Python packages.
+# Scripts are installed separately at /usr/share/recoll-semantic/.
+# Usage: initsemenv.sh <venvdir>
+# Copyright 2026 ITTH GmbH & Co. KG
 
 
 fatal()
@@ -38,37 +38,21 @@ usage()
 test $# = 1 || usage
 venvdir=$1
 
-
 mkdir -p "$venvdir" || exit 1
 python3 -m venv "$venvdir" || exit 1
 . "$venvdir"/bin/activate
 python3 -m pip install chromadb ollama
 deactivate
 
+# Install the recoll Python module into the venv so scripts can import it
+recollmod=`echo 'from recoll import recoll; print(recoll.__file__)' | python3 2>/dev/null`
+if test -n "$recollmod"; then
+    rclmoddir=`dirname $recollmod`
+    cp -rp "$rclmoddir" "$venvdir"/lib/python*/site-packages
+fi
+
 ol=`which ollama`
-if test -z "$ol"; then 
+if test -z "$ol"; then
     curl -fsSL https://ollama.com/install.sh | sh
 fi
 ollama pull nomic-embed-text
-
-cp rclsem_common.py  rclsem_embed.py  rclsem_query.py  rclsem_segment.py  rclsem_talk.py  \
-   slicelist.py cmdtalkplugin.py "$venvdir"
-(cd "$venvdir";chmod a+x rclsem_embed.py  rclsem_query.py  rclsem_talk.py)
-
-rclindex=`which recollindex`
-if test -z "$rclindex" ; then
-    fatal "recollindex not found. Is recoll installed ?"
-fi
-if test "$rclindex" = /bin/recollindex; then
-    rclindex=/usr/bin/recollindex
-fi
-recolldatadir=`dirname $rclindex`/../share/recoll/
-rclpydir="$recolldatadir/filters"
-test -f $rclpydir/conftree.py || fatal conftree.py not found in $rclpydir
-(cd "$rclpydir";cp conftree.py rclconfig.py cmdtalk.py "$venvdir")
-
-recollmod=`echo 'from recoll import recoll; print(recoll.__file__)' | python3`
-echo recollmod $recollmod
-test -z "$recollmod" && fatal recoll module not found
-rclmoddir=`dirname $recollmod`
-cp -rp "$rclmoddir" "$venvdir"/lib/python*/site-packages

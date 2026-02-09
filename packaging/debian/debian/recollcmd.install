@@ -7,3 +7,4 @@ usr/share/man
 usr/share/recoll/doc/* usr/share/doc/recoll
 usr/share/recoll/examples
 usr/share/recoll/filters
+usr/share/recoll-semantic

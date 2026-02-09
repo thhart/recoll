@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+import _sempath  # noqa: F401  — path setup for installed layout
+
 import sys
 import os
 import getopt

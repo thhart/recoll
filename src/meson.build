@@ -567,6 +567,21 @@ install_subdir(
     exclude_files: ['recfiltcommon', 'injectcommon.sh',],
 )
 
+if get_option('semantic')
+    install_subdir(
+        'semantic',
+        install_dir: get_option('datadir') / 'recoll-semantic',
+        strip_directory: true,
+        exclude_directories: '__pycache__',
+        exclude_files: ['initsemenv.sh'],
+    )
+    install_data(
+        'semantic/initsemenv.sh',
+        install_dir: get_option('datadir') / 'recoll-semantic',
+        install_mode: 'rwxr-xr-x',
+    )
+endif
+
 doc_files = files(
 'doc/user/docbook-xsl.css',
 'doc/user/usermanual.html',

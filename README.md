@@ -73,22 +73,28 @@ dpkg-buildpackage -us -uc -b
 
 ## Setup after install
 
+The package automatically creates a Python venv at
+`/var/lib/recoll-semantic/venv` with chromadb and ollama.
+
+Add to `~/.recoll/recoll.conf`:
+
+```
+sem_venv = /var/lib/recoll-semantic/venv
+```
+
+Build embeddings:
+
 ```bash
-# Initialize the semantic venv (installs chromadb, ollama, pulls model)
-cd src/semantic
-./initsemenv.sh /home/<user>/.recoll/semantic
-
-# Add to ~/.recoll/recoll.conf
-sem_venv = /home/<user>/.recoll/semantic
-
-# Build embeddings
-~/.recoll/semantic/bin/python3 ~/.recoll/semantic/rclsem_embed.py
+/var/lib/recoll-semantic/venv/bin/python3 \
+  /usr/share/recoll-semantic/rclsem_embed.py
 ```
 
 For remote ollama, set `OLLAMA_HOST` before running:
 
 ```bash
-OLLAMA_HOST=http://gpu-server:11434 ~/.recoll/semantic/bin/python3 ~/.recoll/semantic/rclsem_embed.py
+OLLAMA_HOST=http://gpu-server:11434 \
+  /var/lib/recoll-semantic/venv/bin/python3 \
+  /usr/share/recoll-semantic/rclsem_embed.py
 ```
 
 ## Configuration

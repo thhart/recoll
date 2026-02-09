@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import _sempath  # noqa: F401  — path setup for installed layout
+
 from getopt import getopt
 import sys
 import json

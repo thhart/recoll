@@ -18,6 +18,7 @@
 #include "docseqsem.h"
 
 #ifdef ENABLE_SEMANTIC
+#include <cstdlib>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -30,6 +31,7 @@
 #include "rclconfig.h"
 #include "rcldb.h"
 #include "pathut.h"
+#include "rclutil.h"
 
 static CmdTalk cmd(10);
 
@@ -46,10 +48,17 @@ static bool maybeStartCmd(const RclConfig *conf)
         return false;
     }
 
-    // We run the script with an explicit python command so that it runs in the venv without having
-    // to deal with the activate script.
+    // Python interpreter from the venv
     auto cmdname = path_cat(venvdir, {"bin", "python3"});
-    std::vector<std::string> args{path_cat(venvdir, "rclsem_talk.py")};
+
+    // Scripts installed by the package (e.g. /usr/share/recoll-semantic/)
+    std::string scriptdir = path_cat(path_rclpkgdatadir(), "..", "recoll-semantic");
+    std::vector<std::string> args{path_cat(scriptdir, "rclsem_talk.py")};
+
+    // Set PYTHONPATH so the script finds peer modules and recoll filters
+    std::string filterdir = path_cat(path_rclpkgdatadir(), "filters");
+    setenv("PYTHONPATH", (scriptdir + ":" + filterdir).c_str(), 1);
+
     if (!cmd.startCmd(cmdname, args)) {
         LOGERR("startCmd failed \n");
         return false;
