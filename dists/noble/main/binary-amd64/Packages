@@ -1,0 +1,156 @@
+Package: librecoll-dev
+Architecture: amd64
+Version: 1.43.12-1~ppa1~noble1
+Multi-Arch: same
+Priority: optional
+Section: libdevel
+Source: recoll-semantic
+Maintainer: Jean-Francois Dockes <jfd@recoll.org>
+Installed-Size: 228
+Depends: librecoll39 (= 1.43.12-1~ppa1~noble1)
+Filename: pool/main/librecoll-dev_1.43.12-1~ppa1~noble1_amd64.deb
+Size: 67348
+MD5sum: 0c72aa97fca349794d695b2c92a98b0a
+SHA1: 1ca27a1e4df95d8d9e6410002b484799ff476d82
+SHA256: 7a039bb6ce80e0b2fd4231faaa577cac761acda32485ab92ccccbf62adf2fb64
+SHA512: 9dedd61e5c449155a514fdd5fda95b280ef1173081b057179ddb52e0322f23a685fdfa66e27c0e131ce0d938766344e0a3a7b3f405b53e8a23580e032676ea07
+Homepage: https://www.recoll.org
+Description: development files for librecoll
+ This package  contains the development files for librecoll package, which is
+ base code interfacing with Xapian and is used by the recoll commands, the
+ Python extensions, the KDE plugins.
+
+Package: librecoll39
+Architecture: amd64
+Version: 1.43.12-1~ppa1~noble1
+Multi-Arch: same
+Priority: optional
+Section: libs
+Source: recoll-semantic
+Maintainer: Jean-Francois Dockes <jfd@recoll.org>
+Installed-Size: 3332
+Depends: libc6 (>= 2.38), libgcc-s1 (>= 3.3.1), libjsoncpp25 (>= 1.9.5), libmagic1t64 (>= 5.12), libstdc++6 (>= 13.1), libx11-6, libxapian30 (>= 1.4.19~), libxml2 (>= 2.7.4), libxslt1.1 (>= 1.1.25), zlib1g (>= 1:1.2.0)
+Breaks: librecoll (<< 1.43.2-1)
+Replaces: librecoll (<< 1.43.2-1)
+Filename: pool/main/librecoll39_1.43.12-1~ppa1~noble1_amd64.deb
+Size: 1182106
+MD5sum: 184211a21cae55eedcf3c121e50c4b3d
+SHA1: e4d581c874218d641d9e0cb1c1732c5e4056d2d0
+SHA256: 5a74bbbb7eeb166dd76cf3eee73bf53d0064961bb618c245857fa2926c5b5046
+SHA512: a4785a43a363cdf8922ba98a4cb5dd78f80241ef1c44cd6ad114f330908821273e0f519d7b267ee85338ae202ca0fc9cf89e55175c93a87840caf48bfeba44f9
+Homepage: https://www.recoll.org
+Description: Base library for recoll and related extensions
+ This package contains the base code interfacing with Xapian and is used by the
+ recoll commands, the Python extensions, the KDE plugins.
+
+Package: python3-recoll
+Architecture: amd64
+Version: 1.43.12-1~ppa1~noble1
+Priority: optional
+Section: python
+Source: recoll-semantic
+Maintainer: Jean-Francois Dockes <jfd@recoll.org>
+Installed-Size: 233
+Depends: librecoll39 (= 1.43.12-1~ppa1~noble1), python3 (<< 3.13), python3 (>= 3.12~), python3:any, libc6 (>= 2.32), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 13.1)
+Filename: pool/main/python3-recoll_1.43.12-1~ppa1~noble1_amd64.deb
+Size: 81504
+MD5sum: c382a9b57dc00d9886e6582ffb94aad8
+SHA1: db979d6fbd0f830fdd52693324d20e0fece66bc0
+SHA256: 8c99082d46eddc65d2193c74ab54a41febb3552f2eb209a49b97371819805840
+SHA512: 2f3ccf2ff289d6b070c0eb8bfefb40cbe13864e9cc3c2a3630c18af6794332dbd9b677cf2ec75e18ac48a92003acc0faf44d92b23be8a56b11a572de93bf7643
+Homepage: https://www.recoll.org
+Description: Python extension for recoll (Python3)
+ Personal full text search package which is based on a very strong backend
+ (Xapian), for which it provides an easy to use and feature-rich interface.
+ .
+ This package provides Python3 extension module for recoll which can be use to
+ extend recoll such as an Ubuntu Unity Lens.
+
+Package: recoll-semantic
+Architecture: all
+Version: 1.43.12-1~ppa1~noble1
+Priority: optional
+Section: x11
+Maintainer: Jean-Francois Dockes <jfd@recoll.org>
+Installed-Size: 35
+Pre-Depends: debconf | debconf-2.0
+Depends: recollcmd (= 1.43.12-1~ppa1~noble1), recollgui (= 1.43.12-1~ppa1~noble1), python3-venv, python3-pip, python3-recoll, curl, debconf (>= 0.5) | debconf-2.0
+Conflicts: recoll
+Replaces: recoll
+Filename: pool/main/recoll-semantic_1.43.12-1~ppa1~noble1_all.deb
+Size: 21776
+MD5sum: ec8c8f63b6a6576d8a4e8c728777cbf7
+SHA1: 832a95a16038f99433338289f2b19fc7786c9d14
+SHA256: 0589d64dc414b56c90af327dce7e691b19de4406ae822e9dca537ad192063844
+SHA512: c209125b612adec56767928cf63815cf62d5899ec6c5b1f9489c3e96e390c8480a955f06bc89ae2f852091023e5bc65c3ba43e26f7a0af6326c3ef53a4e0c804
+Homepage: https://www.recoll.org
+Description: Personal full text search package with semantic search
+ This package is a personal full text search package is based on a very strong
+ backend (Xapian), for which it provides an easy to use and feature-rich
+ interface.
+ .
+ Features:
+  * Qt-based GUI.
+  * Supports the following document types (and their compressed versions)
+   - Natively: text, html, OpenOffice files,  excel, ppt, maildir and
+     mailbox (Mozilla and IceDove mail) with attachments, pidgin log files
+   - With external helpers:  pdf (pdftotext), postscript (ghostscript), msword
+     (antiword), rtf (unrtf). And others...
+  * Powerful query facilities, with boolean searches, phrases, filter on file
+    types and directory tree.
+  * Support for multiple charsets, Internal processing and storage uses Unicode
+    UTF-8.
+  * Stemming performed at query time (can switch stemming language after
+    indexing).
+  * Easy installation. No database daemon, web server or exotic language
+    necessary.
+  * The indexer can run either continuously or in batch.
+ .
+ This metapackage installs recoll GUI and commandline tools.
+
+Package: recollcmd
+Architecture: amd64
+Version: 1.43.12-1~ppa1~noble1
+Priority: optional
+Section: x11
+Source: recoll-semantic
+Maintainer: Jean-Francois Dockes <jfd@recoll.org>
+Installed-Size: 2043
+Depends: librecoll39 (= 1.43.12-1~ppa1~noble1), libaspell15 (>= 0.60.8.1), libc6 (>= 2.38), libchm1 (>= 0.40), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 13.1), libxapian30 (>= 1.4.19~)
+Recommends: aspell, libjson-perl, python3, python3-recoll, xdg-utils, xsltproc
+Suggests: antiword, djvulibre-bin, ghostscript, groff, libimage-exiftool-perl, libinotifytools0, libwpd-tools, poppler-utils, pstotext, python3-chardet, python3-icalendar, python3-lxml, python3-mutagen, python3-py7zr, python3-rarfile, unrtf, untex, wv
+Breaks: recollgui (<< 1.28.5-1)
+Replaces: recollgui (<< 1.28.5-1)
+Filename: pool/main/recollcmd_1.43.12-1~ppa1~noble1_amd64.deb
+Size: 590040
+MD5sum: 656e505332a75b3c607e384c235d5fab
+SHA1: a5248003a7279aa459a9a71b3a525632f5b4b569
+SHA256: 225d54ea900195e1f526326b934f1cfad1526ffd4af8c3315c76dfabd3147be5
+SHA512: 9ee57916550218bff1ea2191c8d3f9a5e088a1b7e16a85f2bcb46df15e4d01b029da6dcf507aef4b43c1b9bd63e40591a1865726d398df31d9f3d3627d6b1ed9
+Homepage: https://www.recoll.org
+Description: Command line programs for recoll
+ This package contains command line programs for a personal full text search
+ package recoll.
+
+Package: recollgui
+Architecture: amd64
+Version: 1.43.12-1~ppa1~noble1
+Priority: optional
+Section: x11
+Source: recoll-semantic
+Maintainer: Jean-Francois Dockes <jfd@recoll.org>
+Installed-Size: 5229
+Depends: recollcmd (= 1.43.12-1~ppa1~noble1), libc6 (>= 2.38), libgcc-s1 (>= 3.0), libqt6core6t64 (>= 6.4.0), libqt6gui6t64 (>= 6.1.2), libqt6network6t64 (>= 6.1.2), libqt6webenginecore6 (>= 6.2.2), libqt6webenginecore6-bin (>= 6.2.2), libqt6webenginewidgets6 (>= 6.2.2), libqt6widgets6t64 (>= 6.3.0), librecoll39, libstdc++6 (>= 13.1)
+Breaks: recollcmd (<< 1.28.5-1)
+Replaces: recollcmd (<< 1.28.5-1)
+Filename: pool/main/recollgui_1.43.12-1~ppa1~noble1_amd64.deb
+Size: 1174246
+MD5sum: 5eb9378c6c49ceb302c9011cd2e50149
+SHA1: 1dbfaed5b116eee3c399e76158cb3f7b2513af41
+SHA256: bd83fa8ce31cd1eb4446adb2bf6e5331d80596aa38e5d0ff710313f105fe2d04
+SHA512: 6900e44c6cc5d0899ef3f259b8a8283ef4d3d545a18c9767a7472f01deb8184e6ca3c69abfe248120d75a75e4f953bfa3a053fa106c54a68342dfdb69bf16d46
+Homepage: https://www.recoll.org
+Description: GUI program and elements for recoll
+ This package contains main recoll GUI for configuring, controlling and
+ querying recoll indexes.
+

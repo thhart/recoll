@@ -1,0 +1,24 @@
+Architectures: amd64
+Codename: noble
+Components: main
+Date: Mon, 09 Feb 2026 19:19:22 +0000
+Description: Recoll with semantic search support
+Label: Recoll Semantic
+Origin: recoll-semantic
+Suite: noble
+MD5Sum:
+ 7e984eae390d6116d4c3bf6319fa054f              201 Release
+ a403f614bf2644b860d5425c0d28e69e             7523 main/binary-amd64/Packages
+ 120c303656185f9101452ad045a677f0             2964 main/binary-amd64/Packages.gz
+SHA1:
+ c06088a468cd52f0e472c376debdd99493229316              201 Release
+ f29a0264317ba396ab33cdd0d9d011a37781de42             7523 main/binary-amd64/Packages
+ c6d9d14ec8ad6f19ce8eb9542e7438df40611679             2964 main/binary-amd64/Packages.gz
+SHA256:
+ a818c1117c2872b340ec3b34fba688c41b59fdd6ff7309d43cedcccc41cee7af              201 Release
+ f837114ae15b3b5d15495f3db810cc6dbcd2e7061d22848e0e26e3727241aec4             7523 main/binary-amd64/Packages
+ bdb74bc570aeade8959b8f9a470d4c6d159391f18b044d1f349b6258f1be3979             2964 main/binary-amd64/Packages.gz
+SHA512:
+ 047b828e61ca25313da2c0a21dd3eaa0c0a81ea4e584e643280c5e1ef44bbe87da6dd7b926a128e585b9e05b385a848463c2a7970cdde36eb4a1950171e4eea2              201 Release
+ 8fd340a6d6ef815889f1282f323b518857984331f02d33847f59d1cc31df20a81af527f600ba973b26de1b254a05635199490fdb2fe8531cba15224ceda43c18             7523 main/binary-amd64/Packages
+ a6a14744b465c8bb1c37e43793f1f6b6f642368751b1ba2351171f79232274a2bda50064a052b4892f8181eb8b2e070d8198736e9b6beb30451c4742cd75a310             2964 main/binary-amd64/Packages.gz
