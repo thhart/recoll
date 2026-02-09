@@ -52,7 +52,7 @@ static bool maybeStartCmd(const RclConfig *conf)
     auto cmdname = path_cat(venvdir, {"bin", "python3"});
 
     // Scripts installed by the package (e.g. /usr/share/recoll-semantic/)
-    std::string scriptdir = path_cat(path_rclpkgdatadir(), "..", "recoll-semantic");
+    std::string scriptdir = path_cat(path_rclpkgdatadir(), {"..", "recoll-semantic"});
     std::vector<std::string> args{path_cat(scriptdir, "rclsem_talk.py")};
 
     // Set PYTHONPATH so the script finds peer modules and recoll filters
