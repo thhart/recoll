@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            debhelper dh-python bison \
+            build-essential debhelper dh-python bison \
             libaspell-dev libchm-dev libjsoncpp-dev libmagic-dev \
             libx11-dev libxapian-dev libxslt1-dev zlib1g-dev \
             meson ninja-build pkgconf \
