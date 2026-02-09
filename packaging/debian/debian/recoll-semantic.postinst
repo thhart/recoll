@@ -1,13 +1,40 @@
 #!/bin/sh
-# Post-install script for recoll-semantic: create the Python venv.
+# Post-install script for recoll-semantic.
 # Copyright 2026 ITTH GmbH & Co. KG
 set -e
+
+. /usr/share/debconf/confmodule
 
 SEM_VENV=/var/lib/recoll-semantic/venv
 
 case "$1" in
     configure)
-        /usr/share/recoll-semantic/initsemenv.sh "$SEM_VENV"
+        # Read debconf answers
+        db_get recoll-semantic/ollama-host
+        OLLAMA_HOST="$RET"
+
+        db_get recoll-semantic/pull-model
+        PULL_MODEL="$RET"
+
+        # Export OLLAMA_HOST for the init script (ollama pull uses it)
+        if [ -n "$OLLAMA_HOST" ]; then
+            export OLLAMA_HOST
+        fi
+
+        # Create venv and install Python packages
+        /usr/share/recoll-semantic/initsemenv.sh "$SEM_VENV" "$PULL_MODEL"
+
+        # Write configuration hint
+        echo ""
+        echo "recoll-semantic: venv created at $SEM_VENV"
+        echo "Add the following to ~/.recoll/recoll.conf:"
+        echo ""
+        echo "  sem_venv = $SEM_VENV"
+        if [ -n "$OLLAMA_HOST" ]; then
+            echo "  sem_ollama_host = $OLLAMA_HOST"
+        fi
+        echo "  postindexcmd = $SEM_VENV/bin/python3 /usr/share/recoll-semantic/rclsem_embed.py"
+        echo ""
         ;;
 esac
 

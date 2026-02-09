@@ -21,7 +21,9 @@
 # Initialize the semantic search Python venv.
 # Creates the venv and installs chromadb + ollama Python packages.
 # Scripts are installed separately at /usr/share/recoll-semantic/.
-# Usage: initsemenv.sh <venvdir>
+# Usage: initsemenv.sh <venvdir> [pull_model]
+#   pull_model: "true" (default) or "false" — whether to pull the embedding model
+# Set OLLAMA_HOST in the environment to use a remote ollama server.
 # Copyright 2026 ITTH GmbH & Co. KG
 
 
@@ -32,16 +34,19 @@ fatal()
 }
 usage()
 {
-    fatal Usage: initsemenv.sh venvdir
+    fatal "Usage: initsemenv.sh <venvdir> [true|false]"
 }
 
-test $# = 1 || usage
+test $# -ge 1 || usage
 venvdir=$1
+pull_model=${2:-true}
 
+echo "recoll-semantic: creating Python venv at $venvdir ..."
 mkdir -p "$venvdir" || exit 1
 python3 -m venv "$venvdir" || exit 1
 . "$venvdir"/bin/activate
-python3 -m pip install chromadb==1.5.0 ollama
+echo "recoll-semantic: installing Python packages (this may take a few minutes) ..."
+python3 -m pip install --quiet chromadb==1.5.0 ollama
 deactivate
 
 # Install the recoll Python module into the venv so scripts can import it
@@ -51,8 +56,14 @@ if test -n "$recollmod"; then
     cp -rp "$rclmoddir" "$venvdir"/lib/python*/site-packages
 fi
 
-ol=`which ollama`
-if test -z "$ol"; then
-    curl -fsSL https://ollama.com/install.sh | sh
+if test "$pull_model" = "true"; then
+    ol=`which ollama`
+    if test -z "$ol"; then
+        echo "recoll-semantic: installing ollama ..."
+        curl -fsSL https://ollama.com/install.sh | sh
+    fi
+    echo "recoll-semantic: pulling embedding model (this may take several minutes) ..."
+    ollama pull nomic-embed-text
+else
+    echo "recoll-semantic: skipping model pull (configured to skip or using remote ollama)"
 fi
-ollama pull nomic-embed-text

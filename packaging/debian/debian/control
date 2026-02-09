@@ -30,6 +30,7 @@ Rules-Requires-Root: no
 
 Package: recoll-semantic
 Architecture: all
+Pre-Depends: debconf | debconf-2.0
 Depends: recollcmd (= ${binary:Version}), recollgui (= ${binary:Version}),
          python3-venv, python3-pip, python3-recoll, curl, ${misc:Depends}
 Conflicts: recoll

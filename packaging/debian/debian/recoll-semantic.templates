@@ -1,0 +1,15 @@
+Template: recoll-semantic/ollama-host
+Type: string
+Default:
+Description: Ollama server URL (leave empty for local):
+ If you use a remote GPU server for embeddings, enter its URL here
+ (e.g. http://gpu-server:11434). Leave empty to use a local ollama
+ instance.
+
+Template: recoll-semantic/pull-model
+Type: boolean
+Default: true
+Description: Download the embedding model now?
+ The nomic-embed-text model (~274 MB) is required for semantic search.
+ If you use a remote ollama server that already has the model, you can
+ skip this step. The download may take several minutes.

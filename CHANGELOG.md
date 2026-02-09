@@ -2,6 +2,8 @@
 
 ## 2026-02-09
 
+- Interactive deb install via debconf: prompts for ollama server URL
+  and whether to download the embedding model during install
 - Add `sem_ollama_host` config parameter: configure remote ollama
   server URL from `recoll.conf` (no more manual `OLLAMA_HOST` env var)
 - Add `postindexcmd` config parameter to recollindex: runs a shell

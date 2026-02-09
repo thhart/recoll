@@ -73,8 +73,13 @@ dpkg-buildpackage -us -uc -b
 
 ## Setup after install
 
-The package automatically creates a Python venv at
-`/var/lib/recoll-semantic/venv` with chromadb and ollama.
+During installation, debconf will ask for:
+- **Ollama server URL** — leave empty for local, or enter a remote URL
+  (e.g. `http://gpu-server:11434`)
+- **Download embedding model** — whether to pull `nomic-embed-text` (~274 MB)
+  now. Skip if your remote server already has it.
+
+The package creates a Python venv at `/var/lib/recoll-semantic/venv`.
 
 Add to `~/.recoll/recoll.conf`:
 
