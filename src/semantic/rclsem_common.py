@@ -36,6 +36,11 @@ def get_embedding(text, embedmodel):
     response = ollama.embed(model=embedmodel, input=text)
     return response['embeddings'][0]
 
+def get_embeddings_batch(texts, embedmodel):
+    """Embed multiple texts in a single ollama call."""
+    response = ollama.embed(model=embedmodel, input=texts)
+    return response['embeddings']
+
 _g_config = None
 
 def get_rclconfig():
