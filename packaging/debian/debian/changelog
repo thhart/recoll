@@ -1,4 +1,4 @@
-recoll (1.43.12-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
+recoll-semantic (1.43.12-1~ppaPPAVERS~SERIES1) SERIES; urgency=low
 
   * Python API: qresultstore: use surrogateescape for decoding urls.
   * rclaudio: avoid duplicating values when adding data to fields.

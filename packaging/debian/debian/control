@@ -1,4 +1,4 @@
-Source: recoll
+Source: recoll-semantic
 Section: x11
 Priority: optional
 Maintainer: Jean-Francois Dockes <jfd@recoll.org>
@@ -28,10 +28,12 @@ Homepage: https://www.recoll.org
 Standards-Version: 4.7.2
 Rules-Requires-Root: no
 
-Package: recoll
+Package: recoll-semantic
 Architecture: all
 Depends: recollcmd (= ${binary:Version}), recollgui (= ${binary:Version}), ${misc:Depends}
-Description: Personal full text search package
+Conflicts: recoll
+Replaces: recoll
+Description: Personal full text search package with semantic search
  This package is a personal full text search package is based on a very strong
  backend (Xapian), for which it provides an easy to use and feature-rich
  interface.

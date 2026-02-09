@@ -1,34 +1,55 @@
-# Semantic Embedding Sync — Code Review Notes
+# Semantic Embedding — Review Notes
 
 Copyright 2026 ITTH GmbH & Co. KG
 
-## Problem
+---
 
-`rclsem_embed.py` only handles initial population of ChromaDB. It does not detect
-modified or deleted documents. Re-running it skips all existing segment IDs,
-leaving stale embeddings in place.
+## Implemented Optimizations
 
-## Affected File
+All implemented on `semantic` branch, tested and working.
 
-`src/semantic/rclsem_embed.py` — `update_embeddings()` function (lines 37-88)
+### Batch ollama calls — DONE
+`rclsem_common.py`: Added `get_embeddings_batch()` — single HTTP call per batch
+instead of per-segment. Eliminates up to 99 network round-trips per 100-segment
+slice, especially impactful with remote ollama.
 
-## Current Behavior
+### Batch ChromaDB existence checks — DONE
+`rclsem_embed.py`: One `collection.get(ids=[...])` per slice instead of per
+segment. ~100x fewer DB queries per slice.
 
-- Segments stored with ID `rcludi+index`, no metadata
-- Check at line 76-79: if segment ID exists in ChromaDB, skip
-- No signature comparison for modifications
-- No cleanup pass for deletions
+### Cross-document batching — DONE
+`rclsem_embed.py`: Segments accumulate across document boundaries into a shared
+buffer (`BATCH_SIZE=100`). Flushes to ollama when full, ensuring consistent GPU
+utilization regardless of individual document sizes.
 
-## Proposed Changes
+### Early skip for fully-embedded documents — DONE
+`rclsem_embed.py`: `doc_fully_embedded()` checks first+last segment ID in
+ChromaDB. If both exist, entire document is skipped. Makes re-runs near-instant
+for unchanged indexes.
+
+### Off-by-one fix — DONE
+`rclsem_embed.py`: `range(len(sentslice))` instead of `range(len(sentslice)-1)`.
+Last segment of each slice is no longer silently dropped.
+
+### Progress output — DONE
+`rclsem_embed.py`: Single overwriting line per file: `[N/total] filename pct%`
+with `skipped` for already-embedded docs. Final summary: `Done: N documents
+processed, M skipped.`
+
+### Debian packaging for semantic — DONE
+`packaging/debian/debian/control`: Added `libjsoncpp-dev (>= 1.9.0)` to
+Build-Depends.
+`packaging/debian/debian/rules`: Added `-Dsemantic=true` to meson configure.
+
+---
+
+## Pending — Sync Logic (not yet implemented)
 
 ### 1. Store doc signature as metadata on each segment
 
-Current (line 85-88):
-```python
-collection.add(ids=ids, embeddings=embeddings)
-```
+Store `doc.sig` and `rcludi` as ChromaDB metadata on each segment to enable
+modification detection:
 
-Proposed:
 ```python
 collection.add(
     ids=ids,
@@ -37,14 +58,13 @@ collection.add(
 )
 ```
 
-`doc.sig` is already exposed by the Recoll Python API (`pyrecoll.cpp:434-435`)
-and is used internally by Recoll for its own up-to-date checks (typically
-mtime+size based).
+`doc.sig` is exposed by the Recoll Python API (`pyrecoll.cpp:434-435`) and is
+used internally by Recoll for up-to-date checks (typically mtime+size based).
 
 ### 2. Detect modifications via signature comparison
 
-Replace the simple "already there? skip" check (lines 74-79) with signature
-comparison:
+Replace the simple "already there? skip" with signature comparison. On first
+changed segment detected, purge all old segments for that document and re-embed:
 
 ```python
 segid = rcludi + "+" + str(idx)
@@ -60,20 +80,16 @@ if results['ids']:
     break  # restart this doc's segments from scratch
 ```
 
-On first changed segment detected, all old segments for that document are purged
-and re-embedding starts fresh.
-
 ### 3. Delete orphaned documents after embedding loop
 
-Add a cleanup pass after the main embedding loop:
+Cleanup pass: find ChromaDB entries whose `rcludi` is no longer in the Recoll
+index:
 
 ```python
-# Collect all rcludi values currently in the Recoll index
 current_udis = set()
 for doc in query:
     current_udis.add(doc.rcludi)
 
-# Find ChromaDB entries whose rcludi is no longer in the index
 all_chroma = collection.get(include=["metadatas"])
 orphaned_ids = []
 for seg_id, meta in zip(all_chroma['ids'], all_chroma['metadatas']):
@@ -85,7 +101,7 @@ if orphaned_ids:
         collection.delete(ids=orphaned_ids[i:i+500])
 ```
 
-## Summary
+### Sync summary
 
 | Change          | Mechanism                                         | Key field          |
 |-----------------|---------------------------------------------------|--------------------|
@@ -95,85 +111,22 @@ if orphaned_ids:
 
 ---
 
-## Performance Bottlenecks
+## Pending — Further Optimizations (not yet implemented)
 
-### Bottleneck 1: One-by-one ollama calls (highest impact)
+### Pipeline with threading
 
-`rclsem_embed.py:82` calls `get_embedding()` per segment, which issues one HTTP
-round-trip to ollama each time (`rclsem_common.py:36`):
-
-```python
-# Current: N HTTP calls per slice (up to 100)
-for i in range(len(sentslice)-1):
-    embeddings.append(get_embedding(sentslice[i], embedmodel))
-```
-
-`ollama.embed()` already supports batch input — a list of strings returns all
-embeddings in one call. With a remote ollama instance, this eliminates up to 99
-network round-trips per 100-segment slice. The ollama server can also
-parallelize embedding computation internally on batch input.
-
-Proposed `get_embedding()` change in `rclsem_common.py`:
-```python
-def get_embeddings_batch(texts, embedmodel):
-    response = ollama.embed(model=embedmodel, input=texts)
-    return response['embeddings']
-```
-
-Proposed call site in `rclsem_embed.py`:
-```python
-texts_to_embed = [sentslice[i] for i in new_indices]
-embeddings = get_embeddings_batch(texts_to_embed, embedmodel)
-```
-
-### Bottleneck 2: One-by-one ChromaDB existence checks
-
-`rclsem_embed.py:76` queries ChromaDB per segment:
-
-```python
-# Current: N DB queries per slice
-for i in range(len(sentslice)-1):
-    results = collection.get(ids=[segid])
-```
-
-ChromaDB `get()` accepts a list of IDs. Check the entire slice in one call:
-
-```python
-# Proposed: 1 DB query per slice
-all_ids = [rcludi + "+" + str(sentidx + i) for i in range(len(sentslice))]
-existing = set(collection.get(ids=all_ids)['ids'])
-new_indices = [i for i, sid in enumerate(all_ids) if sid not in existing]
-```
-
-### Bottleneck 3: Off-by-one drops last segment per slice
-
-`rclsem_embed.py:70` — `range(len(sentslice)-1)` silently skips the last
-segment of every slice. Likely a bug (perhaps intended to avoid a trailing
-empty segment from `dotbreak`, but that should be handled in `dotbreak` itself).
-
-```python
-# Current: drops last segment
-for i in range(len(sentslice)-1):
-
-# Fix:
-for i in range(len(sentslice)):
-```
-
-### Performance impact summary
-
-| Bottleneck | Location | Current | Proposed | Impact |
-|---|---|---|---|---|
-| Ollama calls | `embed.py:82` / `common.py:36` | N HTTP calls/slice | 1 batch call/slice | ~100x fewer round-trips |
-| ChromaDB checks | `embed.py:76` | N DB queries/slice | 1 batch query/slice | ~100x fewer DB queries |
-| Off-by-one | `embed.py:70` | Last segment dropped | All segments processed | Data completeness |
+Use `ThreadPoolExecutor` with producer-consumer pattern: one thread segments and
+checks ChromaDB, another calls ollama, a third stores results. Python's GIL
+doesn't matter since the bottleneck is network I/O. Overlaps the three wait
+periods. Most impactful with remote ollama.
 
 ---
 
 ## Migration Note
 
-Existing ChromaDB databases created before these changes have no metadata on
-segments. A one-time full re-embed (delete `chromadb/` directory and re-run) is
-required after applying these changes.
+Existing ChromaDB databases created before the sync changes (pending) have no
+metadata on segments. A one-time full re-embed (delete `chromadb/` directory and
+re-run) will be required after implementing the sync logic.
 
 ## References
 
@@ -181,3 +134,5 @@ required after applying these changes.
 - `src/semantic/rclsem_common.py` — ChromaDB/ollama init, `get_embedding()`
 - `src/rcldb/rcldoc.h:110-114` — `doc.sig` definition
 - `src/python/recoll/pyrecoll.cpp:434-435` — `doc.sig` Python API exposure
+- `src/query/docseqsem.cpp` — C++ semantic integration, calls `rclsem_talk.py`
+- `packaging/debian/debian/{control,rules}` — Debian packaging

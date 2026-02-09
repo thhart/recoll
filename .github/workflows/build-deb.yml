@@ -1,0 +1,141 @@
+name: Build Debian Package
+
+on:
+  push:
+    branches: [semantic]
+  pull_request:
+    branches: [semantic]
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debhelper dh-python bison \
+            libaspell-dev libchm-dev libjsoncpp-dev libmagic-dev \
+            libx11-dev libxapian-dev libxslt1-dev zlib1g-dev \
+            meson ninja-build pkgconf \
+            python3-all python3-all-dev python3-setuptools \
+            qt6-base-dev qt6-webengine-dev qt6-l10n-tools qt6-tools-dev
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(cat src/RECOLL-VERSION.txt | tr -d '[:space:]')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare source tarball
+        env:
+          RECOLL_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cd src
+          tar --exclude-from=excludefile -cf /tmp/recoll-src.tar .
+          cd /tmp
+          mkdir -p "recoll-semantic-${RECOLL_VERSION}"
+          cd "recoll-semantic-${RECOLL_VERSION}"
+          tar xf /tmp/recoll-src.tar
+          cd /tmp
+          tar czf "recoll-semantic_${RECOLL_VERSION}.orig.tar.gz" \
+            "recoll-semantic-${RECOLL_VERSION}"
+
+      - name: Copy debian packaging
+        env:
+          RECOLL_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cp -rp packaging/debian/debian/ \
+            "/tmp/recoll-semantic-${RECOLL_VERSION}/debian/"
+          sed -i 's/SERIES/noble/g; s/PPAVERS/1/g' \
+            "/tmp/recoll-semantic-${RECOLL_VERSION}/debian/changelog"
+
+      - name: Build .deb packages
+        env:
+          RECOLL_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cd "/tmp/recoll-semantic-${RECOLL_VERSION}"
+          dpkg-buildpackage -us -uc -b
+
+      - name: Upload .deb artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: recoll-debs
+          path: /tmp/*.deb
+          retention-days: 30
+
+  publish-apt:
+    needs: build-deb
+    if: github.event_name == 'push' && github.ref == 'refs/heads/semantic'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download .deb artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: recoll-debs
+          path: debs/
+
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format long \
+            | grep sec | head -1 | awk '{print $2}' | cut -d/ -f2)
+          echo "GPG_KEY_ID=$GPG_KEY_ID" >> "$GITHUB_ENV"
+
+      - name: Build APT repository structure
+        run: |
+          mkdir -p public/pool/main
+          mkdir -p public/dists/noble/main/binary-amd64
+
+          cp debs/*.deb public/pool/main/
+
+          cd public
+
+          apt-ftparchive packages pool/main \
+            > dists/noble/main/binary-amd64/Packages
+          gzip -k dists/noble/main/binary-amd64/Packages
+
+          cat > apt-ftparchive-release.conf <<'CONF'
+          APT::FTPArchive::Release {
+            Origin "recoll-semantic";
+            Label "Recoll Semantic";
+            Suite "noble";
+            Codename "noble";
+            Architectures "amd64";
+            Components "main";
+            Description "Recoll with semantic search support";
+          };
+          CONF
+
+          apt-ftparchive \
+            -c apt-ftparchive-release.conf \
+            release dists/noble > dists/noble/Release
+
+          rm apt-ftparchive-release.conf
+
+          gpg --batch --yes --armor \
+            --detach-sign \
+            --output dists/noble/Release.gpg \
+            dists/noble/Release
+
+          gpg --batch --yes \
+            --clearsign \
+            --output dists/noble/InRelease \
+            dists/noble/Release
+
+          gpg --batch --yes --export "$GPG_KEY_ID" > KEY.gpg
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          force_orphan: true
